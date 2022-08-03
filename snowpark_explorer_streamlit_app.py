@@ -1,3 +1,6 @@
+# NOTE: This app uses enterprise features of AgGrid so it's solely your responsibility to aquire the license and/or 
+# get permission as the case maybe directly from the creator before using it in produciton or for commercial use.
+
 #!/usr/bin/env python
 
 import streamlit as st
@@ -7,17 +10,20 @@ import pandas as pd
 from datetime import datetime
 from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
+APP_ICON_URL = "assets/snowpark-icon.png"
+
 st.set_page_config(
-     page_title="Snowpark Explorer",
-     page_icon="🧊",
+     page_title="Snowflake Snowpark Explorer",
+     page_icon=APP_ICON_URL,
      layout="wide",
      menu_items={
          'Get Help': 'https://developers.snowflake.com',
-         'About': "This is an *extremely* cool app powered by Snowflake and Streamlit | Developed by dash[dot]desai[at]snowflake[dot]com"
+         'About': "This app is powered by Snowflake and Streamlit | Developed by dash[dot]desai[at]snowflake[dot]com"
      }
 )
 
-st.markdown("<h1 style='margin-top:-80px;'>Snowpark Explorer</h1>", unsafe_allow_html=True)
+st.image(APP_ICON_URL, width=80)
+st.markdown("<h1 style='margin:-80px 0px 0px 100px;'>Snowflake Snowpark Explorer</h1>", unsafe_allow_html=True)
 
 gridOptions = {
     "rowSelection": 'single',
@@ -53,7 +59,7 @@ gridOptions = {
     "detailCellRenderer": JsCode(
       """function (params) {
           console.log(params.data.Body);
-          return "<div style='margin-top:10px;font-size:12px;'><pre>"+params.data.Body+"</pre></div>";
+          return "<textarea style='background-color:#f8f8f8;margin-top:10px;font-size:12px;width:100%;height:100%;box-sizing:border-box;border:2px solid #ccc;border-radius: 4px;'>"+params.data.Body+"</textarea>";
       }"""
     ).js_code,     
     # provide Detail Cell Renderer Params
