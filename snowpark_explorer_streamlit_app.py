@@ -90,13 +90,14 @@ gridOptions = {
     },
 }
 
-ACT = os.getenv('SNOWSQL_ACT')
-USR = os.getenv('SNOWSQL_USR')
-PWD = os.getenv('SNOWSQL_PWD')
-ROL = os.getenv('SNOWSQL_ROL')
-DBT = os.getenv('SNOWSQL_DBT')
-WRH = os.getenv('SNOWSQL_WRH')
-SCH = os.getenv('SNOWSQL_SCH')
+# Environment variables to connect to Snowflake
+ACT = os.getenv('SNOWSQL_ACT') # Account
+USR = os.getenv('SNOWSQL_USR') # User
+PWD = os.getenv('SNOWSQL_PWD') # Password
+ROL = os.getenv('SNOWSQL_ROL') # Role
+DBT = os.getenv('SNOWSQL_DBT') # Database
+WRH = os.getenv('SNOWSQL_WRH') # Warehouse
+SCH = os.getenv('SNOWSQL_SCH') # Schema
 
 def create_context():
     if "snowflake_context" not in st.session_state:
