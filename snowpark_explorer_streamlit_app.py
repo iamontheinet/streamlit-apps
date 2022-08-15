@@ -1,4 +1,4 @@
-# NOTE: This app uses enterprise features of AgGrid so it's solely your responsibility to aquire the license and/or 
+# NOTE: This app uses enterprise features of AgGrid (https://www.ag-grid.com/) so it's solely your responsibility to aquire the license and/or 
 # get permission as the case maybe directly from the creator before using it in produciton or for commercial use.
 
 #!/usr/bin/env python
@@ -27,7 +27,6 @@ st.markdown("<h1 style='margin:-80px 0px 0px 100px;'>Snowflake Snowpark Explorer
 
 gridOptions = {
     "rowSelection": 'single',
-    # "rowStyle": { "background": 'black', "color": 'white' },
     # enable Master / Detail
     "masterDetail": True,
     # the first Column is configured to use agGroupCellRenderer
