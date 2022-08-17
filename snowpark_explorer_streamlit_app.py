@@ -12,6 +12,16 @@ from st_aggrid import AgGrid, GridOptionsBuilder, JsCode
 
 APP_ICON_URL = "assets/snowpark-icon.png"
 
+# Set these environment variables to connect to Snowflake
+ACT = os.getenv('SNOWSQL_ACT') # Account
+USR = os.getenv('SNOWSQL_USR') # User
+PWD = os.getenv('SNOWSQL_PWD') # Password
+ROL = os.getenv('SNOWSQL_ROL') # Role
+DBT = os.getenv('SNOWSQL_DBT') # Database
+WRH = os.getenv('SNOWSQL_WRH') # Warehouse
+SCH = os.getenv('SNOWSQL_SCH') # Schema
+
+# Setup web page
 st.set_page_config(
      page_title="Snowflake Snowpark Explorer",
      page_icon=APP_ICON_URL,
@@ -21,39 +31,41 @@ st.set_page_config(
          'About': "This app is powered by Snowflake and Streamlit | Developed by dash[dot]desai[at]snowflake[dot]com"
      }
 )
-
 st.image(APP_ICON_URL, width=80)
 st.markdown("<h1 style='margin:-80px 0px 0px 100px;'>Snowflake Snowpark Explorer</h1>", unsafe_allow_html=True)
+st.subheader("All things you need to know about your Snowpark Python User-Defined Functions (UDFs) and Stored Procedures (SPs)")
+st.markdown("<h5>NOTE: To see the UDF or SP code, expand the row by clicking on > to the left of the UDF or SP name.</h5>", unsafe_allow_html=True)
 
+# Setup custom Master-Detail grid for displaying UDF and SP details
 gridOptions = {
     "rowSelection": 'single',
     # enable Master / Detail
     "masterDetail": True,
     # the first Column is configured to use agGroupCellRenderer
     "columnDefs": [
-        {
-            "field": "Name",
-            "cellRenderer": "agGroupCellRenderer",
-            "checkboxSelection": False,
-        },
-        {"field": "Signature"},
-        {"field": "Imports"},
-        {"field": "Packages"},
-        {"field": "Builtin"},
-        {"field": "Aggregate"},
-        {"field": "Table Function"},
-        {"field": "Clustering"},
-        {"field": "Secure"},
-        {"field": "Handler"},
-        {"field": "Date Created"},
+      {
+        "field": "Name",
+        "cellRenderer": "agGroupCellRenderer",
+        "checkboxSelection": False,
+      },
+      {"field": "Signature"},
+      {"field": "Imports"},
+      {"field": "Packages"},
+      {"field": "Builtin"},
+      {"field": "Aggregate"},
+      {"field": "Table Function"},
+      {"field": "Clustering"},
+      {"field": "Secure"},
+      {"field": "Handler"},
+      {"field": "Date Created"},
     ],
     "defaultColDef": {
-        "sortable": True
+      "sortable": True
     },
     "onRowSelected": JsCode(
-        """function (params) {
-            console.log(params.data.Body);
-        }"""
+      """function (params) {
+          console.log(params.data.Body);
+      }"""
     ).js_code,
     "detailCellRenderer": JsCode(
       """function (params) {
@@ -65,39 +77,31 @@ gridOptions = {
     "detailCellRendererParams": {
         # provide the Grid Options to use on the Detail Grid
         "detailGridOptions": {
-            "columnDefs": [
-                {"field": "Body"}
-            ],
-            "defaultColDef": {
-                "flex": 1,
-            },
-            "getRowHeight": JsCode(
-              """function (params) {
-                  return 200;
-              }"""
-            ).js_code,       
+          "columnDefs": [
+            {"field": "Body"}
+          ],
+          "defaultColDef": {
+            "flex": 1,
+          },
+          "getRowHeight": JsCode(
+            """function (params) {
+              return 200;
+            }"""
+          ).js_code,       
         },
         # get the rows for each Detail Grid
         "getDetailRowData": JsCode(
-            """function (params) {
-                params.successCallback(
-                [{
-                  "Body": params.data.Body
-                }]);
-            }"""
+          """function (params) {
+            params.successCallback(
+            [{
+              "Body": params.data.Body
+            }]);
+          }"""
         ).js_code,
     },
 }
 
-# Environment variables to connect to Snowflake
-ACT = os.getenv('SNOWSQL_ACT') # Account
-USR = os.getenv('SNOWSQL_USR') # User
-PWD = os.getenv('SNOWSQL_PWD') # Password
-ROL = os.getenv('SNOWSQL_ROL') # Role
-DBT = os.getenv('SNOWSQL_DBT') # Database
-WRH = os.getenv('SNOWSQL_WRH') # Warehouse
-SCH = os.getenv('SNOWSQL_SCH') # Schema
-
+#Create context to connect to Snowflake
 def create_context():
     if "snowflake_context" not in st.session_state:
         ctx = snowflake.connector.connect(
@@ -115,6 +119,7 @@ def create_context():
 
     return ctx
 
+#Load UDF or SP object details
 def load_data(cur, obj_type):
   if obj_type == 'sprocs':
     show_sql = "SHOW USER PROCEDURES"
@@ -130,6 +135,7 @@ def load_data(cur, obj_type):
 
   results = cur.execute(show_sql).fetchall()
 
+  #Loop through UDF or SP object attributes
   for rec in results:
     created_at = rec[0]
     name = rec[1]
@@ -143,17 +149,18 @@ def load_data(cur, obj_type):
     is_clustering = rec[12]
     is_secure = rec[13]
 
+    #Make sure the UDF or SP object belongs to the current Database and Schema. (Otherwise, it will result in unauthorized access error.)
     if (description == obj_description and db == DBT and schema == SCH):
       #Extract Name, Arguments and Return value
       name_and_params = signature[:signature.index("RETURN")-1] if signature.find("RETURN") != -1 else signature
       return_value = signature[signature.index("RETURN")+7:] if signature.find("RETURN") != -1 else "N/A"
 
-      #Describe object to get the details 
+      #Describe UDF or SP object to get the details 
       desc_sql = f"{desc_base_sql} {name_and_params}"
       props = cur.execute(desc_sql).fetchall()
       # print(props)
 
-      #Extract specific info from tuples
+      #Extract specific UDF or SP object info from tuples
       if obj_type == 'sprocs':
         body = props[6][1]
         imports = props[7][1]
@@ -169,8 +176,10 @@ def load_data(cur, obj_type):
         packages = props[9][1]
         packages = packages.strip('][') if packages is not None else 'N/A'
 
+      #Append UDF or SP object details to the list
       data.append([name, signature, imports, packages, is_builtin, is_aggregate, is_table_function, is_clustering, is_secure, handler, created_at.strftime('%b %d %Y'), body])
 
+  #Return Pandas Dataframe with the list of UDF or SP details
   return pd.DataFrame(data,columns=cols)
 
 if __name__ == "__main__":
