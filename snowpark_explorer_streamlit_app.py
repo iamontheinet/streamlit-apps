@@ -33,8 +33,8 @@ st.set_page_config(
 )
 st.image(APP_ICON_URL, width=80)
 st.markdown("<h1 style='margin:-80px 0px 0px 100px;'>Snowflake Snowpark Explorer</h1>", unsafe_allow_html=True)
-st.subheader("All things you need to know about your Snowpark Python User-Defined Functions (UDFs) and Stored Procedures (SPs)")
-st.markdown("<h5>NOTE: To see the UDF or SP code, expand the row by clicking on > to the left of the UDF or SP name.</h5>", unsafe_allow_html=True)
+st.subheader("All things you need to know about your Snowpark Python User-Defined Functions (UDFs, UDTFs) and Stored Procedures (SPs)")
+st.markdown("<h5>NOTE: To see the UDF, UDTF or SP code, expand the row by clicking on > to the left of the UDF or SP name. For questions or feedback, reach out to <a href='https://twitter.com/iamontheinet' target='_blank'>https://twitter.com/iamontheinet</a>.</h5>", unsafe_allow_html=True)
 
 # Setup custom Master-Detail grid for displaying UDF and SP details
 gridOptions = {
@@ -70,7 +70,7 @@ gridOptions = {
     "detailCellRenderer": JsCode(
       """function (params) {
           console.log(params.data.Body);
-          return "<textarea style='background-color:#f8f8f8;margin-top:10px;font-size:12px;width:100%;height:100%;box-sizing:border-box;border:2px solid #ccc;border-radius: 4px;'>"+params.data.Body+"</textarea>";
+          return "<textarea style='color:#000000;background-color:#f8f8f8;margin-top:10px;font-size:12px;width:100%;height:100%;box-sizing:border-box;border:2px solid #ccc;border-radius: 4px;'>"+params.data.Body+"</textarea>";
       }"""
     ).js_code,     
     # provide Detail Cell Renderer Params
@@ -189,7 +189,7 @@ if __name__ == "__main__":
   df_udfs = load_data(cur, 'udfs')
   df_sprocs = load_data(cur, 'sprocs')
 
-  tab1, tab2 = st.tabs(["User-Defined Functions", "Stored Procedures"])
+  tab1, tab2 = st.tabs(["User-Defined Functions and User-Defined Table Functions", "Stored Procedures"])
 
   with tab1:
     AgGrid(df_udfs,gridOptions=gridOptions,height=600,allow_unsafe_jscode=True,enable_enterprise_modules=True)
